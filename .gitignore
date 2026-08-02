@@ -11,6 +11,11 @@
 *.sln.docstates
 *.env
 
+# Local SQLite artifacts, if any remain from my Razor template
+*.db
+*.db-shm
+*.db-wal
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
