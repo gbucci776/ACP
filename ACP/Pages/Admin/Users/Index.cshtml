@@ -19,16 +19,30 @@
         </div>
 
         <div class="admin-header-actions">
+
             <span class="admin-count-badge">
                 <strong>@Model.Users.Count</strong>
                 account@(Model.Users.Count == 1 ? "" : "s")
             </span>
+
+            <form asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  method="post"
+                  class="admin-inline-form">
+
+                <button type="submit"
+                        class="admin-secondary-button">
+                    Logout
+                </button>
+
+            </form>
 
             <a href="#"
                class="admin-primary-button">
                 <span aria-hidden="true">+</span>
                 Add User
             </a>
+
         </div>
     </header>
 

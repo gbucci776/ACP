@@ -98,7 +98,7 @@ body {
 
 .sidebar-header {
     display: flex;
-    min-height: 88px;
+    min-height: 42px;
     align-items: center;
     justify-content: space-between;
     padding: 19px 22px;

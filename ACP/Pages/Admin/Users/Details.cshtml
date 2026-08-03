@@ -15,270 +15,485 @@
     var currentCompanyName =
         Model.SelectedUser.ClientOrganization?.CompanyName
         ?? "Not assigned";
+
+    var initials =
+        $"{Model.SelectedUser.FirstName?.FirstOrDefault()}"
+        + $"{Model.SelectedUser.LastName?.FirstOrDefault()}";
+
+    initials = initials.Trim().ToUpperInvariant();
+
+    if (string.IsNullOrWhiteSpace(initials))
+    {
+        initials = "U";
+    }
 }
 
-<div class="mb-4">
-    <a asp-page="./Index"
-       class="text-decoration-none">
-        ← Back to users
-    </a>
-</div>
-
-@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
-{
-    <div class="alert alert-success">
-        @Model.StatusMessage
-    </div>
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/admin-details.css"
+          asp-append-version="true" />
 }
 
-<div class="d-flex justify-content-between align-items-start mb-4">
-    <div>
-        <h1 class="h2 mb-1">
-            @displayName
-        </h1>
+<div class="admin-page admin-details-page">
 
-        <p class="text-muted mb-0">
-            @Model.SelectedUser.Email
-        </p>
+    <div class="admin-details-back-row">
+        <a asp-page="./Index"
+           class="admin-back-link">
+            <span aria-hidden="true">←</span>
+            Back to users
+        </a>
     </div>
 
-    @if (Model.SelectedUser.IsActive)
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <span class="badge bg-success fs-6">
-            Active
-        </span>
-    }
-    else
-    {
-        <span class="badge bg-danger fs-6">
-            Disabled
-        </span>
-    }
-</div>
-
-<div class="row g-4">
-
-    <!-- Account information -->
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-header">
-                Account information
+        <div class="admin-details-alert admin-details-alert-success"
+             role="status">
+            <div class="admin-details-alert-icon">
+                ✓
             </div>
 
-            <div class="card-body">
-                <dl class="row mb-0">
-
-                    <dt class="col-sm-4">
-                        User ID
-                    </dt>
-
-                    <dd class="col-sm-8 text-break">
-                        @Model.SelectedUser.Id
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        First name
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @(string.IsNullOrWhiteSpace(
-                            Model.SelectedUser.FirstName)
-                            ? "Not provided"
-                            : Model.SelectedUser.FirstName)
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        Last name
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @(string.IsNullOrWhiteSpace(
-                            Model.SelectedUser.LastName)
-                            ? "Not provided"
-                            : Model.SelectedUser.LastName)
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        Email
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @Model.SelectedUser.Email
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        Client company
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @if (Model.SelectedUser.ClientOrganization is null)
-                        {
-                            <span class="text-muted">
-                                Not assigned
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="fw-semibold">
-                                @Model.SelectedUser.ClientOrganization.CompanyName
-                            </span>
-
-                            @if (!string.IsNullOrWhiteSpace(
-                           Model.SelectedUser.ClientOrganization.ClientNumber))
-                            {
-                                <div class="small text-muted">
-                                    Client number:
-                                    @Model.SelectedUser.ClientOrganization.ClientNumber
-                                </div>
-                            }
-                        }
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        Email confirmed
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @(Model.SelectedUser.EmailConfirmed ? "Yes" : "No")
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        Created
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @Model.SelectedUser.CreatedUtc
-                        .ToLocalTime()
-                        .ToString("MMM d, yyyy h:mm tt")
-                    </dd>
-
-                    <dt class="col-sm-4">
-                        Last login
-                    </dt>
-
-                    <dd class="col-sm-8">
-                        @(Model.SelectedUser.LastLoginUtc.HasValue
-                            ? Model.SelectedUser.LastLoginUtc.Value
-                            .ToLocalTime()
-                            .ToString("MMM d, yyyy h:mm tt")
-                            : "Never")
-                    </dd>
-                </dl>
+            <div>
+                <strong>Assignment updated</strong>
+                <span>@Model.StatusMessage</span>
             </div>
         </div>
-    </div>
+    }
 
-    <!-- Roles -->
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header">
-                Assigned roles
+    <header class="admin-details-header">
+
+        <div class="admin-details-user-heading">
+            <div class="admin-details-avatar">
+                @initials
             </div>
 
-            <div class="card-body">
-                @if (Model.Roles.Count == 0)
-                {
-                    <p class="text-muted mb-0">
-                        This account has no assigned role.
-                    </p>
-                }
-                else
-                {
-                    @foreach (var role in Model.Roles)
-                    {
-                        <span class="badge bg-primary me-1 mb-1">
-                            @role
-                        </span>
-                    }
-                }
+            <div>
+                <span class="admin-eyebrow">
+                    USER MANAGEMENT
+                </span>
+
+                <h1>@displayName</h1>
+
+                <p>@Model.SelectedUser.Email</p>
             </div>
         </div>
-    </div>
 
-    <!-- Company assignment form -->
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                Client company assignment
-            </div>
+        <div class="admin-details-header-actions">
 
-            <div class="card-body">
+            @if (Model.SelectedUser.IsActive)
+            {
+                <span class="admin-status active">
+                    <span></span>
+                    Active
+                </span>
+            }
+            else
+            {
+                <span class="admin-status disabled">
+                    <span></span>
+                    Disabled
+                </span>
+            }
 
-                <div class="mb-4">
-                    <div class="small text-muted">
-                        Currently assigned company
-                    </div>
+            @if (Model.SelectedUser.IsActive
+            && Model.SelectedUser.ClientOrganizationId.HasValue)
+            {
+                <form method="post"
+                      asp-page="./Index"
+                      asp-page-handler="Impersonate"
+                      class="admin-inline-form">
 
-                    <div class="fw-semibold fs-5"
-                         id="currentCompanyDisplay">
-                        @currentCompanyName
+                    <input type="hidden"
+                           name="userId"
+                           value="@Model.SelectedUser.Id" />
+
+                    <button type="submit"
+                            class="admin-primary-button">
+                        View Portal
+                    </button>
+                </form>
+            }
+
+        </div>
+    </header>
+
+    <section class="admin-details-summary-grid">
+
+        <article class="admin-details-summary-card">
+            <span>Account status</span>
+
+            <strong>
+                @(Model.SelectedUser.IsActive
+                    ? "Active"
+                    : "Disabled")
+            </strong>
+
+            <small>
+                Current portal access status
+            </small>
+        </article>
+
+        <article class="admin-details-summary-card">
+            <span>Client company</span>
+
+            <strong>
+                @currentCompanyName
+            </strong>
+
+            <small>
+                Organization currently assigned
+            </small>
+        </article>
+
+        <article class="admin-details-summary-card">
+            <span>Email confirmation</span>
+
+            <strong>
+                @(Model.SelectedUser.EmailConfirmed
+                    ? "Confirmed"
+                    : "Unconfirmed")
+            </strong>
+
+            <small>
+                Account email verification
+            </small>
+        </article>
+
+        <article class="admin-details-summary-card">
+            <span>Last login</span>
+
+            <strong>
+                @(Model.SelectedUser.LastLoginUtc.HasValue
+                    ? Model.SelectedUser.LastLoginUtc.Value
+                    .ToLocalTime()
+                    .ToString("MMM d, yyyy")
+                    : "Never")
+            </strong>
+
+            <small>
+                Most recent portal activity
+            </small>
+        </article>
+
+    </section>
+
+    <div class="admin-details-layout">
+
+        <div class="admin-details-main-column">
+
+            <section class="admin-details-card">
+
+                <div class="admin-details-card-header">
+                    <div>
+                        <h2>Account Information</h2>
+
+                        <p>
+                            Review identity, contact, and account details.
+                        </p>
                     </div>
                 </div>
 
-                <form method="post"
-                      asp-page-handler="Organization"
-                      asp-route-id="@Model.SelectedUser.Id">
+                <div class="admin-details-card-body">
 
-                    <div asp-validation-summary="ModelOnly"
-                         class="alert alert-danger">
-                    </div>
+                    <dl class="admin-details-list">
 
-                    <div class="row g-3">
+                        <div class="admin-details-list-row">
+                            <dt>User ID</dt>
 
-                        <div class="col-md-6">
-                            <label asp-for="OrganizationInput.ClientOrganizationId"
-                                   class="form-label">
-                            </label>
-
-                            <select asp-for="OrganizationInput.ClientOrganizationId"
-                                    asp-items="Model.Organizations"
-                                    class="form-select"
-                                    id="organizationSelect">
-
-                                <option value="">
-                                    No client company assigned
-                                </option>
-                            </select>
-
-                            <span asp-validation-for="OrganizationInput.ClientOrganizationId"
-                                  class="text-danger">
-                            </span>
-
-                            <div class="form-text">
-                                Select a company that already exists.
-                            </div>
+                            <dd class="admin-details-code-value">
+                                @Model.SelectedUser.Id
+                            </dd>
                         </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="OrganizationInput.NewCompanyName"
-                                   class="form-label">
-                            </label>
+                        <div class="admin-details-list-row">
+                            <dt>First name</dt>
 
-                            <input asp-for="OrganizationInput.NewCompanyName"
-                                   class="form-control"
-                                   id="newCompanyName"
-                                   placeholder="Example: Acme Corporation" />
-
-                            <span asp-validation-for="OrganizationInput.NewCompanyName"
-                                  class="text-danger">
-                            </span>
-
-                            <div class="form-text">
-                                Entering a new company overrides the selection
-                                on the left.
-                            </div>
+                            <dd>
+                                @(string.IsNullOrWhiteSpace(
+                                    Model.SelectedUser.FirstName)
+                                    ? "Not provided"
+                                    : Model.SelectedUser.FirstName)
+                            </dd>
                         </div>
+
+                        <div class="admin-details-list-row">
+                            <dt>Last name</dt>
+
+                            <dd>
+                                @(string.IsNullOrWhiteSpace(
+                                    Model.SelectedUser.LastName)
+                                    ? "Not provided"
+                                    : Model.SelectedUser.LastName)
+                            </dd>
+                        </div>
+
+                        <div class="admin-details-list-row">
+                            <dt>Email</dt>
+
+                            <dd>
+                                @Model.SelectedUser.Email
+                            </dd>
+                        </div>
+
+                        <div class="admin-details-list-row">
+                            <dt>Email confirmed</dt>
+
+                            <dd>
+                                @if (Model.SelectedUser.EmailConfirmed)
+                                {
+                                    <span class="admin-details-value-status success">
+                                        Confirmed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="admin-details-value-status warning">
+                                        Not confirmed
+                                    </span>
+                                }
+                            </dd>
+                        </div>
+
+                        <div class="admin-details-list-row">
+                            <dt>Created</dt>
+
+                            <dd>
+                                @Model.SelectedUser.CreatedUtc
+                                .ToLocalTime()
+                                .ToString("MMM d, yyyy h:mm tt")
+                            </dd>
+                        </div>
+
+                        <div class="admin-details-list-row">
+                            <dt>Last login</dt>
+
+                            <dd>
+                                @(Model.SelectedUser.LastLoginUtc.HasValue
+                                    ? Model.SelectedUser.LastLoginUtc.Value
+                                    .ToLocalTime()
+                                    .ToString("MMM d, yyyy h:mm tt")
+                                    : "Never")
+                            </dd>
+                        </div>
+
+                    </dl>
+
+                </div>
+            </section>
+
+            <section class="admin-details-card">
+
+                <div class="admin-details-card-header">
+                    <div>
+                        <h2>Client Company Assignment</h2>
+
+                        <p>
+                            Connect this user to an existing or new client company.
+                        </p>
                     </div>
 
-                    <div class="mt-4">
-                        <button type="submit"
-                                class="btn btn-primary">
-                            Save Company Assignment
-                        </button>
+                    <div class="admin-details-current-company">
+                        <span>Current company</span>
+
+                        <strong id="currentCompanyDisplay">
+                            @currentCompanyName
+                        </strong>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="admin-details-card-body">
+
+                    <form method="post"
+                          asp-page-handler="Organization"
+                          asp-route-id="@Model.SelectedUser.Id">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="admin-details-validation-summary">
+                        </div>
+
+                        <div class="admin-details-form-grid">
+
+                            <div class="admin-details-field">
+                                <label asp-for="OrganizationInput.ClientOrganizationId">
+                                </label>
+
+                                <select asp-for="OrganizationInput.ClientOrganizationId"
+                                        asp-items="Model.Organizations"
+                                        id="organizationSelect">
+
+                                    <option value="">
+                                        No client company assigned
+                                    </option>
+                                </select>
+
+                                <span asp-validation-for="OrganizationInput.ClientOrganizationId"
+                                      class="admin-details-field-error">
+                                </span>
+
+                                <small>
+                                    Select a company that already exists.
+                                </small>
+                            </div>
+
+                            <div class="admin-details-field">
+                                <label asp-for="OrganizationInput.NewCompanyName">
+                                </label>
+
+                                <input asp-for="OrganizationInput.NewCompanyName"
+                                       id="newCompanyName"
+                                       placeholder="Example: Acme Corporation" />
+
+                                <span asp-validation-for="OrganizationInput.NewCompanyName"
+                                      class="admin-details-field-error">
+                                </span>
+
+                                <small>
+                                    A new company name overrides the existing
+                                    company selection.
+                                </small>
+                            </div>
+
+                        </div>
+
+                        <div class="admin-details-form-actions">
+                            <a asp-page="./Index"
+                               class="admin-secondary-button">
+                                Cancel
+                            </a>
+
+                            <button type="submit"
+                                    class="admin-primary-button">
+                                Save Company Assignment
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </section>
+
         </div>
+
+        <aside class="admin-details-sidebar">
+
+            <section class="admin-details-card">
+
+                <div class="admin-details-card-header">
+                    <div>
+                        <h2>Assigned Roles</h2>
+
+                        <p>
+                            Portal permissions assigned to this account.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="admin-details-card-body">
+
+                    @if (Model.Roles.Count == 0)
+                    {
+                        <div class="admin-details-empty">
+                            <div class="admin-details-empty-icon">
+                                R
+                            </div>
+
+                            <strong>No roles assigned</strong>
+
+                            <p>
+                                This account does not currently have an
+                                assigned application role.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="admin-details-role-list">
+                            @foreach (var role in Model.Roles)
+                            {
+                                <div class="admin-details-role-item">
+                                    <span class="admin-details-role-icon">
+                                        ✓
+                                    </span>
+
+                                    <div>
+                                        <strong>@role</strong>
+                                        <span>Assigned application role</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+            </section>
+
+            <section class="admin-details-card">
+
+                <div class="admin-details-card-header">
+                    <div>
+                        <h2>Client Organization</h2>
+
+                        <p>
+                            Current client relationship information.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="admin-details-card-body">
+
+                    @if (Model.SelectedUser.ClientOrganization is null)
+                    {
+                        <div class="admin-details-empty">
+                            <div class="admin-details-empty-icon">
+                                C
+                            </div>
+
+                            <strong>No company assigned</strong>
+
+                            <p>
+                                Use the assignment form to connect this user
+                                to a client organization.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="admin-details-company-panel">
+                            <span class="admin-details-company-icon">
+                                @Model.SelectedUser.ClientOrganization
+                                .CompanyName
+                                .FirstOrDefault()
+                                .ToString()
+                                .ToUpperInvariant()
+                            </span>
+
+                            <div>
+                                <strong>
+                                    @Model.SelectedUser.ClientOrganization.CompanyName
+                                </strong>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                               Model.SelectedUser.ClientOrganization.ClientNumber))
+                                {
+                                    <span>
+                                        Client number:
+                                        @Model.SelectedUser.ClientOrganization.ClientNumber
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        No client number assigned
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </section>
+
+        </aside>
+
     </div>
 </div>
 
@@ -302,6 +517,10 @@
                 return;
             }
 
+            const savedCompanyName =
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                 currentCompanyName));
+
             function updateCompanyPreview() {
                 const newCompanyName =
                     newCompanyInput.value.trim();
@@ -310,21 +529,33 @@
                     companyDisplay.textContent =
                         newCompanyName + " (unsaved)";
 
+                    companyDisplay.classList.add("is-unsaved");
                     return;
                 }
 
                 const selectedOption =
                     organizationSelect.options[
-                        organizationSelect.selectedIndex
+                    organizationSelect.selectedIndex
                     ];
 
                 if (selectedOption && selectedOption.value) {
                     companyDisplay.textContent =
                         selectedOption.text + " (unsaved)";
-                } else {
+
+                    companyDisplay.classList.add("is-unsaved");
+                    return;
+                }
+
+                if (organizationSelect.value === "") {
                     companyDisplay.textContent =
                         "Not assigned (unsaved)";
+
+                    companyDisplay.classList.add("is-unsaved");
+                    return;
                 }
+
+                companyDisplay.textContent = savedCompanyName;
+                companyDisplay.classList.remove("is-unsaved");
             }
 
             organizationSelect.addEventListener(
