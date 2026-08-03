@@ -33,9 +33,33 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        "SuperAdministrator",
+        policy => policy.RequireRole(
+            RoleNames.SuperAdministrator));
+
+    options.AddPolicy(
+        "ClientPortal",
+        policy => policy.RequireRole(
+            RoleNames.ClientAdministrator,
+            RoleNames.ClientUser));
+
+    options.AddPolicy(
+        "ConsumerPortal",
+        policy => policy.RequireRole(
+            RoleNames.Consumer));
+});
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+await IdentitySeeder.SeedAsync(
+    app.Services,
+    app.Configuration,
+    app.Environment);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

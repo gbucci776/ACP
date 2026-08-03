@@ -1,0 +1,124 @@
+﻿@page "/admin/users/{id}"
+@model ACP.Pages.Admin.Users.DetailsModel
+@{
+    ViewData["Title"] = "Manage User";
+
+    var displayName =
+        $"{Model.SelectedUser.FirstName} {Model.SelectedUser.LastName}".Trim();
+
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        displayName = Model.SelectedUser.Email ?? "User";
+    }
+}
+
+<div class="mb-4">
+    <a asp-page="./Index" class="text-decoration-none">
+        ← Back to users
+    </a>
+</div>
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h2 mb-1">@displayName</h1>
+        <p class="text-muted mb-0">
+            @Model.SelectedUser.Email
+        </p>
+    </div>
+
+    @if (Model.SelectedUser.IsActive)
+    {
+        <span class="badge bg-success fs-6">Active</span>
+    }
+    else
+    {
+        <span class="badge bg-danger fs-6">Disabled</span>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                Account information
+            </div>
+
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">User ID</dt>
+                    <dd class="col-sm-8 text-break">
+                        @Model.SelectedUser.Id
+                    </dd>
+
+                    <dt class="col-sm-4">First name</dt>
+                    <dd class="col-sm-8">
+                        @(string.IsNullOrWhiteSpace(
+                            Model.SelectedUser.FirstName)
+                            ? "Not provided"
+                            : Model.SelectedUser.FirstName)
+                    </dd>
+
+                    <dt class="col-sm-4">Last name</dt>
+                    <dd class="col-sm-8">
+                        @(string.IsNullOrWhiteSpace(
+                            Model.SelectedUser.LastName)
+                            ? "Not provided"
+                            : Model.SelectedUser.LastName)
+                    </dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">
+                        @Model.SelectedUser.Email
+                    </dd>
+
+                    <dt class="col-sm-4">Email confirmed</dt>
+                    <dd class="col-sm-8">
+                        @(Model.SelectedUser.EmailConfirmed ? "Yes" : "No")
+                    </dd>
+
+                    <dt class="col-sm-4">Created</dt>
+                    <dd class="col-sm-8">
+                        @Model.SelectedUser.CreatedUtc
+                        .ToLocalTime()
+                        .ToString("MMM d, yyyy h:mm tt")
+                    </dd>
+
+                    <dt class="col-sm-4">Last login</dt>
+                    <dd class="col-sm-8">
+                        @(Model.SelectedUser.LastLoginUtc.HasValue
+                            ? Model.SelectedUser.LastLoginUtc.Value
+                            .ToLocalTime()
+                            .ToString("MMM d, yyyy h:mm tt")
+                            : "Never")
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                Assigned roles
+            </div>
+
+            <div class="card-body">
+                @if (Model.Roles.Count == 0)
+                {
+                    <p class="text-muted mb-0">
+                        This account has no assigned role.
+                    </p>
+                }
+                else
+                {
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span class="badge bg-primary me-1 mb-1">
+                            @role
+                        </span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
