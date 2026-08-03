@@ -1,68 +1,233 @@
 ﻿@page "/client/login"
 @model ACP.Pages.Client.LoginModel
+
 @{
     ViewData["Title"] = "Client Portal Login";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-5 col-lg-4">
-        <div class="card shadow-sm mt-5">
-            <div class="card-body p-4">
-                <h1 class="h3 mb-2">Client Portal</h1>
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/client-login.css"
+          asp-append-version="true" />
+}
 
-                <p class="text-muted mb-4">
-                    Sign in to submit and manage collection accounts.
-                </p>
+<div class="client-login-page">
 
-                <form method="post">
-                    <div asp-validation-summary="ModelOnly"
-                         class="text-danger mb-3"></div>
+    <main class="client-login-container">
 
-                    <input type="hidden"
-                           asp-for="ReturnUrl" />
+        <section class="client-login-card"
+                 aria-labelledby="clientLoginHeading">
 
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Email"
-                               class="form-control"
-                               autocomplete="username"
-                               placeholder="name@example.com" />
+            <div class="login-brand">
+                <div class="login-brand-mark" aria-hidden="true">
+                    A
+                </div>
 
-                        <label asp-for="Input.Email"></label>
-
-                        <span asp-validation-for="Input.Email"
-                              class="text-danger"></span>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Password"
-                               class="form-control"
-                               autocomplete="current-password"
-                               placeholder="Password" />
-
-                        <label asp-for="Input.Password"></label>
-
-                        <span asp-validation-for="Input.Password"
-                              class="text-danger"></span>
-                    </div>
-
-                    <div class="form-check mb-3">
-                        <input asp-for="Input.RememberMe"
-                               class="form-check-input" />
-
-                        <label asp-for="Input.RememberMe"
-                               class="form-check-label"></label>
-                    </div>
-
-                    <button type="submit"
-                            class="btn btn-primary w-100">
-                        Sign in to Client Portal
-                    </button>
-                </form>
+                <div class="login-brand-copy">
+                    <strong>ACP</strong>
+                    <span>Client Portal</span>
+                </div>
             </div>
-        </div>
-    </div>
+
+            <div class="login-heading">
+                <span class="login-eyebrow">
+                    SECURE CLIENT ACCESS
+                </span>
+
+                <h1 id="clientLoginHeading">
+                    Welcome back
+                </h1>
+
+                <p>
+                    Sign in to submit accounts, upload documents, and
+                    monitor your collection portfolio.
+                </p>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="login-alert"
+                     role="alert">
+                    <span class="login-alert-icon" aria-hidden="true">
+                        !
+                    </span>
+
+                    <span>
+                        @Model.ErrorMessage
+                    </span>
+                </div>
+            }
+
+            <form method="post"
+                  class="client-login-form">
+
+                <input type="hidden"
+                       asp-for="ReturnUrl" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="login-validation-summary"
+                     role="alert">
+                </div>
+
+                <div class="login-field">
+                    <label asp-for="Input.Email">
+                        Email address
+                    </label>
+
+                    <div class="login-input-wrapper">
+                        <span class="login-input-icon"
+                              aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z" />
+                            </svg>
+                        </span>
+
+                        <input asp-for="Input.Email"
+                               class="login-input"
+                               autocomplete="username"
+                               inputmode="email"
+                               placeholder="name@company.com"
+                               autofocus />
+                    </div>
+
+                    <span asp-validation-for="Input.Email"
+                          class="login-field-error">
+                    </span>
+                </div>
+
+                <div class="login-field">
+                    <div class="login-label-row">
+                        <label asp-for="Input.Password">
+                            Password
+                        </label>
+
+                        <a href="#"
+                           class="forgot-password-link">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <div class="login-input-wrapper">
+                        <span class="login-input-icon"
+                              aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2ZM9 6a3 3 0 0 1 6 0v2H9V6Zm9 14H6V10h12v10Zm-6-3a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                            </svg>
+                        </span>
+
+                        <input asp-for="Input.Password"
+                               class="login-input login-password-input"
+                               autocomplete="current-password"
+                               placeholder="Enter your password" />
+
+                        <button type="button"
+                                class="password-toggle"
+                                id="passwordToggle"
+                                aria-label="Show password"
+                                aria-pressed="false">
+
+                            <svg class="password-show-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+                                <path d="M12 5c-5.5 0-9.5 5-9.5 7s4 7 9.5 7 9.5-5 9.5-7S17.5 5 12 5Zm0 12c-3.73 0-6.77-3.16-7.45-5 .68-1.84 3.72-5 7.45-5s6.77 3.16 7.45 5c-.68 1.84-3.72 5-7.45 5Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <span asp-validation-for="Input.Password"
+                          class="login-field-error">
+                    </span>
+                </div>
+
+                <div class="login-options">
+                    <label class="remember-me-option">
+                        <input asp-for="Input.RememberMe"
+                               class="remember-me-checkbox" />
+
+                        <span>
+                            Remember me
+                        </span>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="client-login-button">
+
+                    <span>
+                        Sign in to Client Portal
+                    </span>
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="m13 5-1.41 1.41L16.17 11H4v2h12.17l-4.58 4.59L13 19l7-7-7-7Z" />
+                    </svg>
+                </button>
+            </form>
+
+            <div class="login-support">
+                <span>
+                    Need help accessing your account?
+                </span>
+
+                <a href="mailto:support@example.com">
+                    Contact ACP support
+                </a>
+            </div>
+        </section>
+
+        <footer class="client-login-footer">
+            <span>
+                &copy; @DateTime.UtcNow.Year ACP. All rights reserved.
+            </span>
+
+            <span class="footer-separator" aria-hidden="true">
+                •
+            </span>
+
+            <a href="#">
+                Privacy
+            </a>
+
+            <span class="footer-separator" aria-hidden="true">
+                •
+            </span>
+
+            <a href="#">
+                Security
+            </a>
+        </footer>
+    </main>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const toggle = document.getElementById("passwordToggle");
+            const passwordInput = document.getElementById("Input_Password");
+
+            if (!toggle || !passwordInput) {
+                return;
+            }
+
+            toggle.addEventListener("click", () => {
+                const passwordIsVisible =
+                    passwordInput.type === "text";
+
+                passwordInput.type =
+                    passwordIsVisible ? "password" : "text";
+
+                toggle.setAttribute(
+                    "aria-label",
+                    passwordIsVisible
+                        ? "Show password"
+                        : "Hide password");
+
+                toggle.setAttribute(
+                    "aria-pressed",
+                    passwordIsVisible ? "false" : "true");
+            });
+        })();
+    </script>
 }

@@ -1,3 +1,4 @@
+using ACP.Data.Identity;
 using ACP.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -23,7 +24,9 @@ public class IndexModel : PageModel
     {
         var users = await _userManager.Users
             .AsNoTracking()
-            .OrderBy(user => user.Email)
+            .Include(user => user.ClientOrganization)
+            .OrderBy(user => user.ClientOrganization!.CompanyName)
+            .ThenBy(user => user.Email)
             .ToListAsync();
 
         var userItems = new List<UserListItem>(users.Count);
@@ -31,6 +34,10 @@ public class IndexModel : PageModel
         foreach (var user in users)
         {
             var roles = await _userManager.GetRolesAsync(user);
+
+            var isClientUser =
+                roles.Contains(RoleNames.ClientAdministrator)
+                || roles.Contains(RoleNames.ClientUser);
 
             userItems.Add(new UserListItem
             {
@@ -44,7 +51,15 @@ public class IndexModel : PageModel
                 LastLoginUtc = user.LastLoginUtc,
                 Roles = roles
                     .OrderBy(role => role)
-                    .ToArray()
+                    .ToArray(),
+
+                ClientOrganizationId =
+                    user.ClientOrganizationId,
+
+                CompanyName =
+                    user.ClientOrganization?.CompanyName,
+
+                IsClientUser = isClientUser
             });
         }
 

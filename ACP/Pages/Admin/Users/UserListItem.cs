@@ -14,6 +14,12 @@ public sealed class UserListItem
 
     public bool IsActive { get; init; }
 
+    public string? CompanyName { get; set; }
+
+    public int? ClientOrganizationId { get; set; }
+
+    public bool IsClientUser { get; set; }
+
     public DateTime CreatedUtc { get; init; }
 
     public DateTime? LastLoginUtc { get; init; }

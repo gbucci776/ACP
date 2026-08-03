@@ -1,5 +1,6 @@
 ﻿@page "/admin/users/{id}"
 @model ACP.Pages.Admin.Users.DetailsModel
+
 @{
     ViewData["Title"] = "Manage User";
 
@@ -10,17 +11,32 @@
     {
         displayName = Model.SelectedUser.Email ?? "User";
     }
+
+    var currentCompanyName =
+        Model.SelectedUser.ClientOrganization?.CompanyName
+        ?? "Not assigned";
 }
 
 <div class="mb-4">
-    <a asp-page="./Index" class="text-decoration-none">
+    <a asp-page="./Index"
+       class="text-decoration-none">
         ← Back to users
     </a>
 </div>
 
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">
+        @Model.StatusMessage
+    </div>
+}
+
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h1 class="h2 mb-1">@displayName</h1>
+        <h1 class="h2 mb-1">
+            @displayName
+        </h1>
+
         <p class="text-muted mb-0">
             @Model.SelectedUser.Email
         </p>
@@ -28,29 +44,42 @@
 
     @if (Model.SelectedUser.IsActive)
     {
-        <span class="badge bg-success fs-6">Active</span>
+        <span class="badge bg-success fs-6">
+            Active
+        </span>
     }
     else
     {
-        <span class="badge bg-danger fs-6">Disabled</span>
+        <span class="badge bg-danger fs-6">
+            Disabled
+        </span>
     }
 </div>
 
 <div class="row g-4">
+
+    <!-- Account information -->
     <div class="col-lg-7">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm h-100">
             <div class="card-header">
                 Account information
             </div>
 
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-sm-4">User ID</dt>
+
+                    <dt class="col-sm-4">
+                        User ID
+                    </dt>
+
                     <dd class="col-sm-8 text-break">
                         @Model.SelectedUser.Id
                     </dd>
 
-                    <dt class="col-sm-4">First name</dt>
+                    <dt class="col-sm-4">
+                        First name
+                    </dt>
+
                     <dd class="col-sm-8">
                         @(string.IsNullOrWhiteSpace(
                             Model.SelectedUser.FirstName)
@@ -58,7 +87,10 @@
                             : Model.SelectedUser.FirstName)
                     </dd>
 
-                    <dt class="col-sm-4">Last name</dt>
+                    <dt class="col-sm-4">
+                        Last name
+                    </dt>
+
                     <dd class="col-sm-8">
                         @(string.IsNullOrWhiteSpace(
                             Model.SelectedUser.LastName)
@@ -66,24 +98,64 @@
                             : Model.SelectedUser.LastName)
                     </dd>
 
-                    <dt class="col-sm-4">Email</dt>
+                    <dt class="col-sm-4">
+                        Email
+                    </dt>
+
                     <dd class="col-sm-8">
                         @Model.SelectedUser.Email
                     </dd>
 
-                    <dt class="col-sm-4">Email confirmed</dt>
+                    <dt class="col-sm-4">
+                        Client company
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @if (Model.SelectedUser.ClientOrganization is null)
+                        {
+                            <span class="text-muted">
+                                Not assigned
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="fw-semibold">
+                                @Model.SelectedUser.ClientOrganization.CompanyName
+                            </span>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                           Model.SelectedUser.ClientOrganization.ClientNumber))
+                            {
+                                <div class="small text-muted">
+                                    Client number:
+                                    @Model.SelectedUser.ClientOrganization.ClientNumber
+                                </div>
+                            }
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Email confirmed
+                    </dt>
+
                     <dd class="col-sm-8">
                         @(Model.SelectedUser.EmailConfirmed ? "Yes" : "No")
                     </dd>
 
-                    <dt class="col-sm-4">Created</dt>
+                    <dt class="col-sm-4">
+                        Created
+                    </dt>
+
                     <dd class="col-sm-8">
                         @Model.SelectedUser.CreatedUtc
                         .ToLocalTime()
                         .ToString("MMM d, yyyy h:mm tt")
                     </dd>
 
-                    <dt class="col-sm-4">Last login</dt>
+                    <dt class="col-sm-4">
+                        Last login
+                    </dt>
+
                     <dd class="col-sm-8">
                         @(Model.SelectedUser.LastLoginUtc.HasValue
                             ? Model.SelectedUser.LastLoginUtc.Value
@@ -96,8 +168,9 @@
         </div>
     </div>
 
+    <!-- Roles -->
     <div class="col-lg-5">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm h-100">
             <div class="card-header">
                 Assigned roles
             </div>
@@ -121,4 +194,146 @@
             </div>
         </div>
     </div>
+
+    <!-- Company assignment form -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                Client company assignment
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-4">
+                    <div class="small text-muted">
+                        Currently assigned company
+                    </div>
+
+                    <div class="fw-semibold fs-5"
+                         id="currentCompanyDisplay">
+                        @currentCompanyName
+                    </div>
+                </div>
+
+                <form method="post"
+                      asp-page-handler="Organization"
+                      asp-route-id="@Model.SelectedUser.Id">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label asp-for="OrganizationInput.ClientOrganizationId"
+                                   class="form-label">
+                            </label>
+
+                            <select asp-for="OrganizationInput.ClientOrganizationId"
+                                    asp-items="Model.Organizations"
+                                    class="form-select"
+                                    id="organizationSelect">
+
+                                <option value="">
+                                    No client company assigned
+                                </option>
+                            </select>
+
+                            <span asp-validation-for="OrganizationInput.ClientOrganizationId"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Select a company that already exists.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="OrganizationInput.NewCompanyName"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="OrganizationInput.NewCompanyName"
+                                   class="form-control"
+                                   id="newCompanyName"
+                                   placeholder="Example: Acme Corporation" />
+
+                            <span asp-validation-for="OrganizationInput.NewCompanyName"
+                                  class="text-danger">
+                            </span>
+
+                            <div class="form-text">
+                                Entering a new company overrides the selection
+                                on the left.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Save Company Assignment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const companyDisplay =
+                document.getElementById("currentCompanyDisplay");
+
+            const organizationSelect =
+                document.getElementById("organizationSelect");
+
+            const newCompanyInput =
+                document.getElementById("newCompanyName");
+
+            if (!companyDisplay ||
+                !organizationSelect ||
+                !newCompanyInput) {
+                return;
+            }
+
+            function updateCompanyPreview() {
+                const newCompanyName =
+                    newCompanyInput.value.trim();
+
+                if (newCompanyName.length > 0) {
+                    companyDisplay.textContent =
+                        newCompanyName + " (unsaved)";
+
+                    return;
+                }
+
+                const selectedOption =
+                    organizationSelect.options[
+                        organizationSelect.selectedIndex
+                    ];
+
+                if (selectedOption && selectedOption.value) {
+                    companyDisplay.textContent =
+                        selectedOption.text + " (unsaved)";
+                } else {
+                    companyDisplay.textContent =
+                        "Not assigned (unsaved)";
+                }
+            }
+
+            organizationSelect.addEventListener(
+                "change",
+                updateCompanyPreview);
+
+            newCompanyInput.addEventListener(
+                "input",
+                updateCompanyPreview);
+        })();
+    </script>
+}
